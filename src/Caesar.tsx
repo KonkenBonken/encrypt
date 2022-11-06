@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, TextField, Grid, Slider, InputLabel } from '@mui/material';
+import { Typography, TextField, Grid, Slider, InputLabel, Select, MenuItem } from '@mui/material';
 
 // import './Caesar.scss';
 
@@ -8,17 +8,31 @@ interface CharacterSet {
   pattern: string;
 }
 
-const characterSets = {
-  alphabet: {
+const characterSets: Record<string, CharacterSet> = {
+  alphabetic: {
     characters: 'abcdefghijklmnopqrstuvwxyz',
     pattern: '[a-z]*'
-  }
-} as const
+  },
+  alphanumeric: {
+    characters: 'abcdefghijklmnopqrstuvwxyz0123456789',
+    pattern: '[a-z0-9]*'
+  },
+  extended: {
+    characters: Array.from(Array(95)).map((e, i) => String.fromCharCode(i + 32)).join(''),
+    pattern: '[ -~]*'
+  },
+  unicode: {
+    characters: Array.from(Array(0xFFFF - 31)).map((e, i) => String.fromCharCode(i + 32)).join(''),
+    pattern: '[ -￿]*'
+  },
+}
+
+const defaultCharacterSet = 'extended';
 
 export default function Caesar() {
   const [inputValue, setInputValue] = useState('');
   const [shift, setShift] = useState(3);
-  const [characterSet, setCharacterSets] = useState<CharacterSet>(characterSets.alphabet);
+  const [characterSet, setCharacterSets] = useState<CharacterSet>(characterSets[defaultCharacterSet]);
   const validate = () => RegExp(`^${characterSet.pattern}$`).test(inputValue);
 
   return (<Grid
@@ -27,7 +41,7 @@ export default function Caesar() {
   >
 
     <Typography variant="h3" component="h1" align="center">
-      Caesar cipher
+      Caesar Cipher
     </Typography>
 
     <TextField
@@ -37,20 +51,41 @@ export default function Caesar() {
       onChange={({ target: { value } }) => setInputValue(value)}
     />
 
-    <InputLabel >
-      Amount of shift
+    <InputLabel>
+      Amount of Shift
     </InputLabel>
     <Slider
       color="secondary" valueLabelDisplay="auto"
-      step={1} min={1} max={26} defaultValue={3}
+      step={1} min={1} max={characterSet.characters.length - 1} defaultValue={3}
       onChange={(_, value) => setShift(value as number)}
     />
 
-    <TextField
+    <InputLabel id="charset">
+      Character Set
+    </InputLabel>
+    <Select
+      labelId="charset"
+      defaultValue={defaultCharacterSet}
+      label="Character Set"
+      color="secondary"
+      sx={{ textTransform: 'capitalize ' }}
+      onChange={({ target: { value } }) => setCharacterSets(characterSets[value])}
+    >
+      {Object.keys(characterSets).map(key =>
+        <MenuItem
+          value={key}
+          sx={{ textTransform: 'capitalize ' }}
+        >
+          {key}
+        </MenuItem>
+      )}
+    </Select>
+
+    {inputValue && <TextField
       label="Encrypted Output"
-      margin='normal' variant="filled" disabled
+      margin='normal' variant="filled"
       value={validate() ? EncryptCeasar(inputValue, shift, characterSet) : 'Error'}
-    />
+    />}
 
   </Grid>);
 }
