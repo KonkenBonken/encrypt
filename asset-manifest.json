@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/encrypt/static/js/main.504b607c.js",
+    "index.html": "/encrypt/index.html",
+    "main.504b607c.js.map": "/encrypt/static/js/main.504b607c.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.504b607c.js"
+  ]
+}
